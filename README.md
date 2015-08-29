@@ -1,13 +1,14 @@
 # FAQ
 
 Haskell is very different from standard programming languages currently in use.
-While there is a huge universe of new ideas worth exploring in Haskell, it can
-be daunting to carry out tasks which you might consider "simple" in a language
-like PHP. Here is a grocery list of tips and rules of thumb for how to
-accomplish these things in Haskell. Sometimes the answer is a straightforward
-translation to a feature in Haskell that does the same thing, but might seem
-obscure. On the other hand there might be a better way to think about your
-problem in the context of purity, static typing, and or laziness.
+While there is a huge universe of new ideas worth exploring in and beyond
+Haskell, it can be daunting to carry out conceptually simple tasks or tasks
+which at least seem simple to do in another language. Here is a grocery list
+of tips and rules of thumb for how to accomplish these things in Haskell.
+Sometimes the answer is a straightforward translation to a feature in Haskell
+that does the same thing, but isn't obvious. On the other hand there might
+be a better way to think about your problem in the context of purity, static
+typing, and or laziness.
 
 ## How do I convert a number to a string?
 
@@ -18,11 +19,14 @@ in the Numeric module. You can also use the `printf` from Text.Printf.
 
 ## How do I convert a string to a number?
 
-- The standard function `read` can convert a string to a type that implements
+- The standard function `read` can convert a string to any type that implements
 the Read class. However this should be considered quick and dirty because a
-badly formatted string will cause a crash.
-- The module Text.Read contains a function `readMaybe` which will return Nothing
-instead of crashing and is a better idea for production code.
+badly formatted string will cause a crash. You can predict this by looking at
+the type `read :: Read a => String -> a` which does not include a way to indicate
+a parse error.
+- The module Text.Read contains a function `readMaybe :: Read a => String ->
+Maybe a` which will return Nothing instead of crashing and is a better idea
+for production code.
 - For parsing numbers contained within other textual data, the parsing library
 you use will have appropriate combinators for various numeric formats.
 
@@ -32,6 +36,27 @@ you use will have appropriate combinators for various numeric formats.
 - To go from a fractional type to an integral type use one of `floor` `ceiling`
 `truncate` or `round`.
 - To go from a fractional type to another fractional type use `realToFrac`.
+
+## How do I convert a String to a ByteString?
+
+- Assuming you want a utf-8 encoding of the string, use `pack` from Data.Text
+to convert the String to Text then use `encodeUtf8` from Data.Text.Encoding.
+
+## How do I convert a ByteString to a String?
+
+- If the ByteString is known to be utf-8 encoded then use `decodeUtf8` and
+`unpack` to reverse the process described above. However for a large amount of
+text consider leaving the result as Text instead of unpacking it.
+- If the ByteString is known to only encode ASCII text, then an alternative
+to the above process is `map (chr . fromIntegral) . BS.unpack`. Again large
+amount of text, even ASCII text, should not be processed as a String.
+- If the ByteString is expected to encode text but the encoding is unknown
+then the function `detectEncoding` from package `charsetdetect` may be able
+to guess what it is. I'm not sure what the best package for dealing with
+legacy encodings is.
+- If the ByteString encodes non-textual data then don't convert it to a String.
+See the `binary` package for converting between ByteStrings and data types with
+a binary encoding.
 
 ## How do I catch exceptions or throw exceptions?
 
@@ -93,7 +118,7 @@ have the same implementation and behavior as Maybe or MaybeT.
 encourage using exceptions just for early exit control flow, at least in
 Haskell.
 
-## How do I get a random number or random value from a set?
+## How do I get a random number or random value from a list?
 
 - In the IO system there is a implicit global generator. You can simply request
 a random number from a range with randomRIO or select a random element from a
@@ -119,4 +144,23 @@ libraries on hackage. `random-fu` provides a variety of distributions and
 `mwc-random` provides a high performance high quality generator for uniform
 distributions.
 
-## 
+## How do I use regex?
+
+- There are a variety of regex packages. In particular `regex-tdfa` has the
+goal of become a standard package included with GHC, according to
+[https://wiki.haskell.org/Regular_expressions](https://wiki.haskell.org/Regular_expressions)
+- Extracting data from text and validating text may be more conveniently solved
+with a combinator parser instead of regex. See the packages `parsec` and `attoparsec`.
+- Validation of input is a good use case for applicative style. Example libraries
+that use this for that are `optparse-applicative` and `yesod-form`.
+
+## Where is select(2)?
+
+- Multiplexing IO can be greatly simplified, at least in Haskell, by using
+lightweight threads. For each socket or I/O stream spawn a thread whose jobs
+it is to wait for activity. Coordinate activity between threads by using
+MVars or STM or bounded channels.
+- For a higher level interface to concurrency you may want to look at
+the `async` package.
+- If you really need select then there is an FFI binding to it in the package
+`select`.
