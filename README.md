@@ -39,12 +39,12 @@ you use will have appropriate combinators for various numeric formats.
 
 ## How do I convert a String to a ByteString?
 
-- Assuming you want a utf-8 encoding of the string, use `pack` from Data.Text
+- Assuming you want a UTF-8 encoding of the string, use `pack` from Data.Text
 to convert the String to Text then use `encodeUtf8` from Data.Text.Encoding.
 
 ## How do I convert a ByteString to a String?
 
-- If the ByteString is known to be utf-8 encoded then use `decodeUtf8` and
+- If the ByteString is known to be UTF-8 encoded then use `decodeUtf8` and
 `unpack` to reverse the process described above. However for a large amount of
 text consider leaving the result as Text instead of unpacking it.
 - If the ByteString is known to only encode ASCII text, then an alternative
@@ -62,6 +62,7 @@ a binary encoding.
 
 - Depending on the kind of catching behavior you want, you need to use
 `finally`, `bracket`, `try`, `catch`, or something else from Control.Exception.
+All of these may only be used in IO code.
 - To throw an exception in IO code use `throwIO`.
 - It is possible to throw exceptions from pure code but it's a better
 idea and is better style to use Maybe, Either, or an error monad in this case.
@@ -147,7 +148,7 @@ distributions.
 ## How do I use regex?
 
 - There are a variety of regex packages. In particular `regex-tdfa` has the
-goal of become a standard package included with GHC, according to
+goal of becoming a standard package included with GHC, according to
 [https://wiki.haskell.org/Regular_expressions](https://wiki.haskell.org/Regular_expressions)
 - Extracting data from text and validating text may be more conveniently solved
 with a combinator parser instead of regex. See the packages `parsec` and `attoparsec`.
@@ -164,3 +165,7 @@ MVars or STM or bounded channels.
 the `async` package.
 - If you really need select then there is an FFI binding to it in the package
 `select`.
+
+## How do I make a global variable?
+
+- You can't.**
