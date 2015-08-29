@@ -111,7 +111,7 @@ exit point is at the top level. This is analogous to never having code that
 follows an if-then-else in an imperative language code block. If you find
 that you are doing a lot of early exiting by case matching on Nothing then you
 should use the Maybe monad `>>=` operator or do notation instead. The monad
-instead for Either works the same way.
+instance for Either works the same way.
 - It is possible to create a monad with an explicit exit command. This will
 have the same implementation and behavior as Maybe or MaybeT.
 - In IO code it is possible to do this by throwing exceptions. But I don't 
